@@ -1,19 +1,14 @@
-function [errors1,errors1_e] = runpart(N,C,K,M,m,L,SNR,SNR_E,corr)
+function [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_E,alpha)
 
-%% ARCHIVED (ignore this code)
-%Runs the main coding scheme, outputs the number of errors for Alice and
+%Runs the main coding scheme for K users codebook size N choose C active,
+%weights m, transmission length M and channel length M
+% where Eves channel is modelled as alpha*Alices channel outputs the number of errors for Alice and
 %Eve respectively
+%
 %verbosity =1
 %to show no output set
 %verbosity=0
 verbosity=0;
-
-% N = 32;          % number of code vectors per user
-% C = 4;           % number of active codes ie N choose C
-% K = 10;          % number of users
-% M = 250;         % number of tranmissions (length of codewords)
-% m = 25;           % constant weight of codewords
-
 
 PSK  = 4;               % modulation alphabeth for weights
 PSKc = 2; 
@@ -54,7 +49,10 @@ for k=1:K               % for each legitimate user
     int = ([real(h); imag(h)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
     q = zeros(1,2*L);                                 % quantised channel vector 
 
-    h_e = corr*h;
+    corv = alpha.^(0:L-1);
+    C = toeplitz(corv,corv);
+    Lch = chol(C);
+    h_e = Lch*h;
     int_e = ([real(h_e); imag(h_e)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
     q_e = zeros(1,2*L);                                 % quantised channel vector 
     

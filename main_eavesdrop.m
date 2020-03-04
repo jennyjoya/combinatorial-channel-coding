@@ -19,30 +19,49 @@ M_all = [150:50:400];
 SNR_all = [0:4:20];
 M_all = 400;
 SNR_all = 10;
+corr = [0.1:0.1:0.5];
+run_times = 100;
 
 
-massive_output_matrix = zeros(length(M_all),length(SNR_all));
+error_count_e = 0;
+error_count = 0;
+corr = [0.2:0.2:0.8];
+results_choleve = zeros(numel(corr),3);
+for i = 1:numel(corr)
+error_count_e = 0;
+error_count = 0;
 
-run_times = 10000;
-
-for M_idx = 1:length(M_all)
-    for SNR_idx = 1:length(SNR_all)
-        SNR = SNR_all(SNR_idx)
-        M = M_all(M_idx)
-        error_count = 0;
-        for count = 1:run_times
-            [errors1,errors1_e] =  run_cwc_eavesdrop(N,C,K,M,m,L,SNR,SNR_E);
-            error_count = error_count + errors1;
-            count
-        end
-        massive_output_matrix(M_idx,SNR_idx) = error_count/(run_times*(K-1));
+    for j = 1:run_times
+    [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_E,corr(i));
+    errors_count = errors_count + errors1;
+    errors_count_e = errors_count_e + errors1_e;
     end
+results_choleve = [corr(i), errors_count/(run_times*(K-1)), errors_count_e/(run_times*K)]
 end
 
-figure;
-hold on;
-for M_idx = 1:length(M_all)
-    massive_output_matrix(M_idx,:)
-    plot(SNR_all,massive_output_matrix(M_idx,:));
-end
-legend( num2str(M_all'))
+% uncomment to vary M
+% massive_output_matrix = zeros(length(M_all),length(SNR_all));
+% 
+% run_times = 10000;
+% 
+% for M_idx = 1:length(M_all)
+%     for SNR_idx = 1:length(SNR_all)
+%         SNR = SNR_all(SNR_idx)
+%         M = M_all(M_idx)
+%         error_count = 0;
+%         for count = 1:run_times
+%             [errors1,errors1_e] =  runpart_correlatedeve(N,C,K,M,m,L,SNR,SNR_E,corr);
+%             error_count = error_count + errors1;
+%             count
+%         end
+%         results_correlated(M_idx,SNR_idx) = error_count/(run_times*(K-1));
+%     end
+% end
+% 
+% figure;
+% hold on;
+% for M_idx = 1:length(M_all)
+%     massive_output_matrix(M_idx,:)
+%     plot(SNR_all,results_correlated(M_idx,:));
+% end
+% legend( num2str(M_all'))
