@@ -1,13 +1,30 @@
-function [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_E,alpha)
+clear all
 
-%Runs the main coding scheme for K users codebook size N choose C active,
-%weights m, transmission length M and channel length M
-% where Eves channel is modelled as alpha*Alices channel outputs the number of errors for Alice and
-%Eve respectively
-%
-%verbosity =1
-%to show no output set
-%verbosity=0
+warning off all
+
+addpath('./spgl1-1.7');
+
+N = 32;          % number of code vectors per user
+C = 4;           % number of active codes ie N choose C
+K = 10;          % number of users
+M = 250;         % number of tranmissions (length of codewords)
+m = 25;           % constant weight of codewords
+
+L = 24;          % channel length for each pair
+
+SNR = 10;        % signal to noise ratio
+SNR_E = 10;       % eavesdropper SNR
+
+M_all = [150:50:400];
+SNR_all = [0:4:20];
+M_all = 400;
+SNR_all = 10;
+corr = [0.1:0.1:0.5];
+run_times = 100;
+
+alpha = 0.5;
+
+
 verbosity=0;
 
 PSK  = 4;               % modulation alphabeth for weights
@@ -50,8 +67,8 @@ for k=1:K               % for each legitimate user
     q = zeros(1,2*L);                                 % quantised channel vector 
 
     corv = alpha.^(0:L-1);
-    Co = toeplitz(corv,corv);
-    Lch = chol(Co);
+    C = toeplitz(corv,corv);
+    Lch = chol(C);
     h_e = Lch*h;
     h_e = (randn(L,1) + 1i*randn(L,1))/sqrt(2*L);
     int_e = ([real(h_e); imag(h_e)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
@@ -165,8 +182,3 @@ for k = 1:K
 end
 
 errors1_e = sum(errors_e);
-
-end
-
-
-

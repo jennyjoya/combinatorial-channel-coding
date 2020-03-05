@@ -19,25 +19,28 @@ M_all = [150:50:400];
 SNR_all = [0:4:20];
 M_all = 400;
 SNR_all = 10;
-corr = [0.1:0.1:0.5];
-run_times = 100;
+run_times = 10000;
 
 
 error_count_e = 0;
 error_count = 0;
-corr = [0.2:0.2:0.8];
+corr = [0.05:0.05:0.95];
 results_choleve = zeros(numel(corr),3);
 for i = 1:numel(corr)
 error_count_e = 0;
 error_count = 0;
 
-    for j = 1:run_times
+    parfor j = 1:run_times
     [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_E,corr(i));
-    errors_count = errors_count + errors1;
-    errors_count_e = errors_count_e + errors1_e;
+    error_count = error_count + errors1;
+    error_count_e = error_count_e + errors1_e;
+    j
     end
-results_choleve = [corr(i), errors_count/(run_times*(K-1)), errors_count_e/(run_times*K)]
+results_choleve(i,:) = [corr(i), error_count/(run_times*(K-1)), error_count_e/(run_times*K)]
 end
+
+
+
 
 % uncomment to vary M
 % massive_output_matrix = zeros(length(M_all),length(SNR_all));
