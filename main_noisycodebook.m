@@ -37,7 +37,7 @@ for kk = 1:numel(SNR_all)
     error_count = 0;
 
         for j = 1:run_times
-        [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_all(kk),corr(i));
+        [errors1,errors1_e] = runpart_noisyeve(N,C,K,M,m,L,SNR,SNR_all(kk));
         error_count = error_count + errors1;
         error_count_e = error_count_e + errors1_e;
         j

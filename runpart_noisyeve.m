@@ -1,4 +1,4 @@
-function [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_E,alpha)
+function [errors1,errors1_e] = runpart_noisyeve(N,C,K,M,m,L,SNR,SNR_E)
 
 %Runs the main coding scheme for K users codebook size N choose C active,
 %weights m, transmission length M and channel length M
@@ -52,11 +52,8 @@ for k=1:K               % for each legitimate user
     int = ([real(h); imag(h)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
     q = zeros(1,2*L);                                 % quantised channel vector 
     
-    h_e = (randn(L,1) + 1i*randn(L,1))/sqrt(2*L);
-    corv = [1, alpha; alpha, 1];
-    Lch = chol(corv);
-    HH  = Lch * [h.';h_e.'];           
-    h_e = HH(2,:);                       % Alice to Eve channel
+    channel_noise_E = (randn(L,1) + 1i*randn(L,1))*sqrt(sigmaNE/2);
+    h_e = (randn(L,1) + 1i*randn(L,1))/sqrt(2*L) + channel_noise_E;
   
     int_e = ([real(h_e); imag(h_e)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
     q_e = zeros(1,2*L);                                 % quantised channel vector 
@@ -74,7 +71,6 @@ for k=1:K               % for each legitimate user
         qq_e = num2str(q_e);
         % Eve has access to cw 1
         c_e = cwc_codegen(q,M,m);
-        [~,perm_e] = sort(randn(1,M));
         
         % create codebook by permuting c
         % create random permutation
