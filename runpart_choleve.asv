@@ -52,12 +52,18 @@ for k=1:K               % for each legitimate user
     int = ([real(h); imag(h)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
     q = zeros(1,2*L);                                 % quantised channel vector 
     
-    h_e = (randn(L,1) + 1i*randn(L,1))/sqrt(2*L);
     corv = [1, co; co 1];
     Lch = chol(corv);
     HH  = Lch.' * [h;h_e];           
-    h_e = HH(2,:);                       % Alice to Eve channel
-  
+
+    Hae = HH(2,:);                       % Alice to Eve channel
+    Hab;                                 % Alice to Bob channel 
+    
+    corv = alpha.^(0:L-1);
+    Co = toeplitz(corv,corv);
+    Lch = chol(Co);
+    h_e = Lch*h;
+    h_e = (randn(L,1) + 1i*randn(L,1))/sqrt(2*L);
     int_e = ([real(h_e); imag(h_e)])*sqrt(2*L);             % undo the power scaling, so that can use fixed quantisation intervals Q
     q_e = zeros(1,2*L);                                 % quantised channel vector 
     

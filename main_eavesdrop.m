@@ -16,51 +16,38 @@ SNR = 10;        % signal to noise ratio
 SNR_E = 10;       % eavesdropper SNR
 
 M_all = [150:50:400];
-SNR_all = [0:4:20];
+SNR_all = [-5:4:20];
 M_all = 400;
-SNR_all = 10;
-run_times = 10000;
+% SNR_all = 10;
+run_times = 100;
+corr = [0.2:0.2:0.8];
+corr = 0.5;
+big_results = zeros(numel(SNR_all), 4);
 
+for kk = 1:numel(SNR_all)
 
-error_count_e = 0;
-error_count = 0;
-corr = [0.05:0.05:0.95];
-results_choleve = zeros(numel(corr),3);
-for i = 1:numel(corr)
-error_count_e = 0;
-error_count = 0;
+    error_count_e = 0;
+    error_count = 0;
+    results_choleve = zeros(numel(corr),3);
 
-    parfor j = 1:run_times
-    [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_E,corr(i));
-    error_count = error_count + errors1;
-    error_count_e = error_count_e + errors1_e;
-    j
+    for i = 1:numel(corr)
+    error_count_e = 0;
+    error_count = 0;
+
+        parfor j = 1:run_times
+        [errors1,errors1_e] = runpart_choleve(N,C,K,M,m,L,SNR,SNR_all(kk),corr(i));
+        error_count = error_count + errors1;
+        error_count_e = error_count_e + errors1_e;
+        j
+        end
+
+    results_choleve(i,:) = [corr(i), error_count/(run_times*(K-1)), error_count_e/(run_times*K)]
     end
-results_choleve(i,:) = [corr(i), error_count/(run_times*(K-1)), error_count_e/(run_times*K)]
+
+big_results(kk,:) = [SNR_all(kk), results_choleve];
+
 end
 
-
-
-
-% uncomment to vary M
-% massive_output_matrix = zeros(length(M_all),length(SNR_all));
-% 
-% run_times = 10000;
-% 
-% for M_idx = 1:length(M_all)
-%     for SNR_idx = 1:length(SNR_all)
-%         SNR = SNR_all(SNR_idx)
-%         M = M_all(M_idx)
-%         error_count = 0;
-%         for count = 1:run_times
-%             [errors1,errors1_e] =  runpart_correlatedeve(N,C,K,M,m,L,SNR,SNR_E,corr);
-%             error_count = error_count + errors1;
-%             count
-%         end
-%         results_correlated(M_idx,SNR_idx) = error_count/(run_times*(K-1));
-%     end
-% end
-% 
 % figure;
 % hold on;
 % for M_idx = 1:length(M_all)
